@@ -1,33 +1,37 @@
 <html>
 <p>Let's play<span id='loading-signal'>/</span></p>
-<canvas id="gameCanvas" width="1000" height="500"></canvas>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
 <script>
     var canvas;
     var canvasContext;
+
     var ballX = 2;
     var ballY = 50;
-    var ballSpeedX = 6;
+    var ballSpeedX = 10;
     var ballSpeedY = 4;
+
     var paddle1Y = 250;
     var paddle1X = 0;
     var paddle2X = 0;
     var paddle2Y = 250;
+
     var player1Score = 0;
     var player2Score = 0;
-    const velocity = 1;
+    var maximumScore = 3;
+
     const PADDLE_HEIGHT = 100;
     const PADDLE_WIDTH = 10;
-    const BALL_RADIUS = 5;
+    const BALL_RADIUS = 10;
     const BASE_SPEED = 6;
-
+    
     window.onload = function () {
         canvas = document.getElementById('gameCanvas');
         canvasContext = canvas.getContext('2d');
-        var framesPerSecond = 60;
+        var framesPerSecond = 30;
         setInterval(function () {
             moveBall();
             drawBall();
-            computerMovement();
+            //computerMovement();
         }, 1000 / framesPerSecond);
         var cnt = 0;
         setInterval(function () {
@@ -41,6 +45,7 @@
             }
             cnt++;
             document.getElementById('loading-signal').textContent = loading_signal;
+      
         }, 200);
         canvas.addEventListener('mousemove',
             function (evt) {
@@ -51,8 +56,12 @@
     }
 
     function ballReset() {
-        ballSpeedX = BASE_SPEED;
-        ballSpeedY = BASE_SPEED - 2;
+        if(player1Score >= maximumScore || player2Score >= maximumScore) {
+            player1Score = 0;
+            player2Score = 0;
+        }
+        ballSpeedX = -ballSpeedX;
+        //ballSpeedY = BASE_SPEED - 2;
         ballX = canvas.width / 2;
         ballY = canvas.height / 2;
     }
@@ -70,9 +79,9 @@
 
     function computerMovement() {
         var paddleCenter = paddle2Y + PADDLE_HEIGHT / 2;
-        if (paddleCenter <= ballY + 35) {
+        if (paddleCenter <= ballY - 35) {
             paddle2Y += 6;
-        } else if (paddleCenter >= ballY - 35) {
+        } else if (paddleCenter >= ballY + 35) {
             paddle2Y -= 6;
         }
     }
@@ -86,8 +95,9 @@
                 var deltaY = ballY - (paddle1Y + PADDLE_HEIGHT / 2);
                 ballSpeedY = deltaY / 3;
             } else {
+                player2Score++;
                 ballReset();
-                player1Score++;
+                
             }
         }
         if (ballX >= canvas.width) {
@@ -96,8 +106,9 @@
                 var deltaY = ballY - (paddle2Y + PADDLE_HEIGHT / 2);
                 ballSpeedY = deltaY / 3;
             } else {
+                player1Score++;
                 ballReset();
-                player2Score++;
+                
             }
         }
         if (ballY >= canvas.height || ballY <= 0) {
